@@ -51,7 +51,7 @@ const getUser = (req,res)=>{
     const user = userService.getUser(id);
 
     if(user) {
-        logger.info(`Fetching ${id} user`);
+        logger.info(`Fetching user ID ${id}`);
         return res.status(StatusCodes.OK).send({
             status: STATUS.success,
             user,
@@ -100,7 +100,7 @@ const updateUser = (req,res)=>{
         const updatedUser = userService.updateUser(id,user);
 
         if(updatedUser) {
-            logger.info(`Updating ${id} user`);
+            logger.info(`Updating user ID ${id}`);
 
             return res.status(StatusCodes.OK).send({
                 status: STATUS.success,
@@ -131,7 +131,7 @@ const deleteUser = (req,res)=> {
     const status = userService.removeUser(id);
 
     if (status) {
-        logger.info(`Removing ${id} user`);
+        logger.info(`Removing user ID ${id}`);
         return res.status(StatusCodes.OK).send({
             status: STATUS.success,
             message: `User ${id} has been deleted`,
@@ -153,5 +153,4 @@ export default {
     addUser,
     updateUser,
     deleteUser,
-
 }
