@@ -1,7 +1,11 @@
 import { StatusCodes } from "http-status-codes";
+import pino from 'pino';
 
 import userService from "../services/user.service";
 
+const { format } = require('date-fns');
+
+const logger = pino();
 const STATUS = {
     success: 'OK',
     failure: 'NO'
@@ -16,12 +20,22 @@ const STATUS = {
 const getAllUsers =  (req,res)=>{
     const users = userService.getAll();
     if(users.length > 0) {
-        return res.status(StatusCodes.OK).send(users);
+        logger.info(`Fetching all users`);
+
+        return res.status(StatusCodes.OK).send({
+            status: STATUS.success,
+            users,
+        });
     }
-    return res.status(StatusCodes.NOT_FOUND).send({
-        status: STATUS.failure,
-        message: `Users NOT Found.`
-    })
+    else {
+        const errorMessage = `Users NOT Found.`;
+        logger.error(errorMessage);
+
+        return res.status(StatusCodes.NOT_FOUND).send({
+            status: STATUS.failure,
+            message: errorMessage
+        })
+    }
 }
 
 /**
@@ -37,15 +51,20 @@ const getUser = (req,res)=>{
     const user = userService.getUser(id);
 
     if(user) {
+        logger.info(`Fetching ${id} user`);
         return res.status(StatusCodes.OK).send({
             status: STATUS.success,
             user,
         });
     }
-    return res.status(StatusCodes.NOT_FOUND).send({
-        status: STATUS.failure,
-        message: `User ${id} is not found and value is invalid`
-    })
+    else {
+        const errorMessage = `User ${id} is not found and value is invalid`;
+        logger.error(errorMessage);
+        return res.status(StatusCodes.NOT_FOUND).send({
+            status: STATUS.failure,
+            message: errorMessage
+        })
+    }
 }
 
 /**
@@ -58,6 +77,8 @@ const addUser = (req,res)=> {
     const {body: user} = req;
 
     const addedUser = userService.addUser(user);
+
+    logger.info('Creating a user');
 
     return res.status(StatusCodes.CREATED).send({
         status: STATUS.success,
@@ -79,15 +100,22 @@ const updateUser = (req,res)=>{
         const updatedUser = userService.updateUser(id,user);
 
         if(updatedUser) {
+            logger.info(`Updating ${id} user`);
+
             return res.status(StatusCodes.OK).send({
                 status: STATUS.success,
                 user: updatedUser,
             });
         }
-        return res.status(StatusCodes.NOT_FOUND).send({
-            status: STATUS.failure,
-            message: `User ${id} is not found`
-        })
+
+        else {
+            const errorMessage = `User ${id} is not found`;
+            logger.error(errorMessage);
+            return res.status(StatusCodes.NOT_FOUND).send({
+                status: STATUS.failure,
+                message: errorMessage
+            })
+        }
 };
 
 /**
@@ -103,15 +131,20 @@ const deleteUser = (req,res)=> {
     const status = userService.removeUser(id);
 
     if (status) {
+        logger.info(`Removing ${id} user`);
         return res.status(StatusCodes.OK).send({
             status: STATUS.success,
             message: `User ${id} has been deleted`,
         });
     }
-    return res.status(StatusCodes.NOT_FOUND).send({
-        status: STATUS.failure,
-        message: `User ${id} is not found`
-    })
+    else {
+        const errorMessage = `User ${id} is not found`;
+        logger.error(errorMessage);
+        return res.status(StatusCodes.NOT_FOUND).send({
+            status: STATUS.failure,
+            message: errorMessage
+        })
+    }
 };
 
 export default {
